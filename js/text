@@ -1,0 +1,60 @@
+async function getData() {
+  const data = await fetch("../data/targetList.json");
+  const respons = await data.json();
+  return respons;
+}
+// Get Muscles Type From Api And Display
+let genreator = getData();
+genreator.then((data) => {
+  genreator = gen(data);
+  for (let i = 0; i < 8; i++) {
+    display(genreator.next().value);
+  }
+});
+// Display Data
+function display(name) {
+  let content = `
+    <div class="item">
+    <div class="inner" key=${name}>
+      <div class="icon"><i class="fa-solid fa-dumbbell"></i></div>
+      <h3>${name}</h3>
+    </div>
+  </div>
+    `;
+
+  muscleTarget.innerHTML += content;
+}
+// Load More Data
+function* gen(arr) {
+  yield* arr;
+}
+seeMore.addEventListener("click", () => {
+  for (let i = 0; i < 4; i++) {
+    let item = genreator.next();
+    if (item.value === undefined) {
+      seeMore.setAttribute("disabled", "disabled");
+      seeMore.innerHTML = "No More Dada To Load";
+      break;
+    }
+    display(item.value);
+  }
+  bar.style.width = calcBarWidth();
+});
+
+genreator.then(() => {
+  select = [
+    ...document.querySelectorAll(
+      "#muscles .container .muscleTarget .item .inner"
+    ),
+  ];
+  muscles.forEach((el) => {
+    el.addEventListener("click", () => {
+      let key = el.getAttribute("key");
+      navigat(key);
+    });
+  });
+});
+function navigat(key) {
+  url = "../page/details.html?key=" + encodeURIComponent(key);
+  window.location.assign(url);
+}
